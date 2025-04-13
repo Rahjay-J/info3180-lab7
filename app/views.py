@@ -5,19 +5,70 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
+from app import app, db
 from flask import render_template, request, jsonify, send_file
+from flask_wtf import FlaskForm
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import os
+from app.models import Movie  
+from app.forms import MovieForm  
 
+# Path for saving uploaded files
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-###
-# Routing for your application.
-###
+# Ensure upload folder exists
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 @app.route('/')
 def index():
     return jsonify(message="This is the beginning of our API")
 
+@app.route('/api/v1/movies', methods=['POST'])
+def add_movie():
+    form = MovieForm()
+    
+    # Check if the form is valid
+    if form.validate_on_submit():
+        # Save the file to the uploads folder
+        if 'poster' not in request.files:
+            return jsonify(errors=["No poster file uploaded."]), 400
+        
+        file = request.files['poster']
+        if file.filename == '':
+            return jsonify(errors=["No selected file."]), 400
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+        else:
+            return jsonify(errors=["Invalid file format for the poster. Only images allowed."]), 400
+        
+        
+        movie = Movie(
+            title=form.title.data,
+            description=form.description.data,
+            poster=filename  
+        )
+        db.session.add(movie)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Movie Successfully added",
+            "title": movie.title,
+            "poster": filename,  
+            "description": movie.description
+        }), 201
+    
+    
+    return jsonify(errors=form_errors(form)), 400
+
+# Utility function to check allowed file extensions (for the movie poster)
+def allowed_file(filename):
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 ###
 # The functions below should be applicable to all Flask apps.
