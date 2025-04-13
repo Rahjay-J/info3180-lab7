@@ -22,6 +22,10 @@
             <li class="nav-item">
               <RouterLink class="nav-link" to="/about">About</RouterLink>
             </li>
+            <!-- Add the "Add Movie" link -->
+            <li class="nav-item">
+              <RouterLink to="/movies/create" class="nav-link">Add Movie</RouterLink>
+            </li>
           </ul>
         </div>
       </div>
@@ -34,5 +38,5 @@ import { RouterLink } from "vue-router";
 </script>
 
 <style>
-/* Add any component specific styles here */
+/* Add any component-specific styles here */
 </style>

@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect  
 from .config import Config
 
 # Create the Flask app
@@ -15,6 +16,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 # Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+csrf = CSRFProtect(app)  
 
 # Import views and models
 from app import views, models
