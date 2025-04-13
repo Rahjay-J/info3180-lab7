@@ -85,16 +85,17 @@ def get_movies():
             'id': movie.id,
             'title': movie.title,
             'description': movie.description,
-            'poster': f"/api/v1/posters/{movie.poster}"  # Assuming 'poster' is the filename
+            'poster': f"/api/v1/posters/{movie.poster}"  
         })
     
     return jsonify({'movies': movies_list})
 
 
-# New API endpoint to serve movie posters
+# Endpoint to serve movie posters
 @app.route('/api/v1/posters/<filename>', methods=['GET'])
 def get_poster(filename):
-    return send_from_directory(os.path.join(app.root_path, 'uploads'), filename)
+    uploads_path = os.path.join(os.getcwd(), 'uploads')
+    return send_from_directory(uploads_path, filename)
 
 ###
 # The functions below should be applicable to all Flask apps.

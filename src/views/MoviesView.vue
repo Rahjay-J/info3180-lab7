@@ -14,7 +14,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-// Define a reactive property for movies
+
 const movies = ref([]);
 
 // Fetch movies from the Flask API
@@ -46,14 +46,15 @@ onMounted(() => {
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 5px;
-  width: 200px;
+  width: 220px;
   text-align: center;
 }
 
 .movie-poster {
-  width: 100%;
-  height: auto;
-  max-height: 300px;
-  object-fit: cover;
+  width: 200px;
+  height: 200px;
+  object-fit: cover; 
+  border-radius: 8px;
+  margin: 0 auto;
 }
 </style>
