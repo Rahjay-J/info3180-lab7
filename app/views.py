@@ -6,14 +6,14 @@ This file creates your application.
 """
 
 from app import app, db
-from flask import render_template, request, jsonify, send_file
+from flask import render_template, request, jsonify, send_from_directory
 from flask_wtf import FlaskForm
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import generate_csrf
 from werkzeug.utils import secure_filename
 import os
 from app.models import Movie  
-from app.forms import MovieForm  
+from app.forms import MovieForm
 
 # Path for saving uploaded files
 UPLOAD_FOLDER = 'uploads'
@@ -74,6 +74,27 @@ def add_movie():
 def allowed_file(filename):
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+@app.route('/api/v1/movies', methods=['GET'])
+def get_movies():
+    movies = Movie.query.all()  # Query all movies from the database
+    movies_list = []
+    
+    for movie in movies:
+        movies_list.append({
+            'id': movie.id,
+            'title': movie.title,
+            'description': movie.description,
+            'poster': f"/api/v1/posters/{movie.poster}"  # Assuming 'poster' is the filename
+        })
+    
+    return jsonify({'movies': movies_list})
+
+
+# New API endpoint to serve movie posters
+@app.route('/api/v1/posters/<filename>', methods=['GET'])
+def get_poster(filename):
+    return send_from_directory(os.path.join(app.root_path, 'uploads'), filename)
 
 ###
 # The functions below should be applicable to all Flask apps.

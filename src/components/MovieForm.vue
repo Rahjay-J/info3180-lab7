@@ -36,7 +36,9 @@ const csrfToken = ref('');
 // Fetch CSRF token on mount
 const getCsrfToken = async () => {
   try {
-    const res = await fetch('/api/v1/csrf-token');
+    const res = await fetch('/api/v1/csrf-token', {
+      credentials: 'same-origin' // Ensure cookies are sent
+    });
     const data = await res.json();
     csrfToken.value = data.csrf_token;
   } catch (error) {
@@ -65,13 +67,17 @@ const saveMovie = async () => {
   formData.append('title', title.value);
   formData.append('description', description.value);
   formData.append('poster', poster.value);
-  formData.append('csrf_token', csrfToken.value);
 
   try {
     const response = await fetch("/api/v1/movies", {
       method: "POST",
       body: formData,
+      headers: {
+        "X-CSRFToken": csrfToken.value 
+      },
+      credentials: "same-origin" 
     });
+
     const data = await response.json();
 
     if (data.errors) {
@@ -84,6 +90,7 @@ const saveMovie = async () => {
       description.value = '';
       poster.value = null;
     }
+
     console.log("Response:", data);
   } catch (error) {
     message.value = 'An error occurred while submitting the form.';
